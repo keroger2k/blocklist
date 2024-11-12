@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  blocklist
+
+  Sample SAM Template for blocklist
+
+Parameters:
+  VPCEndpoints:
+    Type: List<String>
+    Description: VPC Endpoint to use with private API Gateway.
+    Default: vpce-0b6c09fadbf2f6d3b
+  S3BucketCode:
+    Type: String
+    Description: The S3 bucket containing Lambda function code
+    Default: troubleshootinglogs
+  S3BucketCodePrefix:
+    Type: String
+    Description: The S3 bucket prefix for object path
+    Default: 'Network Blocklist Lambda Code'
+  S3BucketCodeZip:
+    Type: String
+    Description: The .zip file name for archive containing lambda function code
+    Default: 'block_list.zip'
+  S3BucketIPFile:
+    Type: String
+    Description: The S3 bucket containing the IP File
+    Default: troubleshootinglogs
+  S3BucketIPFilePrefix:
+    Type: String
+    Description: The S3 bucket prefix for IP File object path
+    Default: 'Network Testing'
+  S3BucketIPFileName:
+    Type: String
+    Description: The file name for object carrying block list
+    Default: 'block_list.txt'
+  APIGatewayResourceName:
+    Type: String
+    Description: Name for API Gateway Resource
+    Default: 'dev-networkteam-blocklist'
+
+
+Resources:
+  BlockListFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          fileName: !Ref S3BucketIPFileName
+          fileBucket: !Ref S3BucketIPFile
+          fileKey: !Sub ${S3BucketIPFilePrefix}/${S3BucketIPFileName}
+      Events:
+        BlocklistGET:
+          Type: Api
+          Properties:
+            Path: /blocklist
+            Method: get
+        BlocklistPOST:
+          Type: Api
+          Properties:
+            Path: /blocklist
+            Method: post
+        BlocklistDELETE:
+          Type: Api
+          Properties:
+            Path: /blocklist
+            Method: delete
+
+Outputs:
+  BlockListApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  BlockListFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt BlockListFunction.Arn
+  BlockListFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt BlockListFunctionRole.Arn
