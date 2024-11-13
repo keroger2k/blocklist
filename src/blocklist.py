@@ -35,7 +35,6 @@ def trim_entries():
     with open(FILE_PATH, 'r') as f:
         entries = [line.strip() for line in f if line.strip()]  # Read existing entries
 
-
     # Sort entries by timestamp (the second part after '|')
     entries.sort(key=lambda x: int(x.split('|')[1]))  # Sort by the timestamp
 
@@ -53,8 +52,6 @@ def trim_entries():
         # Remove the oldest entry (first in the sorted list)
         entries.pop(0)
     
-    print(f"final: {entries}")
-
     # Write the trimmed entries back to the file
     with open(FILE_PATH, 'w') as f:
         for entry in entries:
