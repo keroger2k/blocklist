@@ -82,7 +82,6 @@ def normalize_ip(ip: str) -> str:
         
 def get_ips(include_timestamp: bool = False):
     entries = {}
-    
     with open(FILE_PATH, 'r') as f:
          entries = json.load(f)
     
@@ -127,23 +126,23 @@ def delete_ips(ip_list):
     #log_changes(request_body.decode(), "DELETE", client_ip)  # Log the changes with request type and client IP
     entries = {}
 
-    with open(FILE_PATH, 'r') as f:
+    with open(FILE_PATH, 'r+') as f:
         entries = json.load(f)
 
-    # Create a set of IPs to remove
-    ips_to_remove = {normalize_ip(ip) for ip in ip_list}
+        # Create a set of IPs to remove
+        ips_to_remove = {normalize_ip(ip) for ip in ip_list}
 
-    for key in ips_to_remove:
-        try:
-            del entries[key]
-        except KeyError as e:
-            logging.info(f"Unknown Key: {e}")
-
-    # Write the remaining entries back to the file
-    write_file_to_s3(entries)
-
-    # Trim entries to ensure the maximum limit after deletion
-    trim_entries()
+        for key in ips_to_remove:
+            try:
+                del entries[key]
+            except KeyError as e:
+                logging.info(f"Unknown Key: {e}")
+        
+        f.seek(0)
+        json.dump(entries, f, indent=4)
+        f.truncate()
+        
+    s3_resource.Bucket(BUCKET).upload_file(FILE_PATH,KEY)
 
     return "IPs deleted successfully"
 
