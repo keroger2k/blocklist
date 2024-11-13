@@ -1,6 +1,7 @@
 import os
 
-FILE_PATH = "/tmp/" + os.environ['fileName']
+FILE_NAME = os.environ['fileName']
+FILE_PATH = os.path.join("/tmp", FILE_NAME)
 BUCKET = os.environ['fileBucket']
 KEY = os.environ['fileKey']
 

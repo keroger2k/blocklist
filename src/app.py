@@ -26,7 +26,13 @@ def lambda_handler(event, context):
 
     if event["path"] == "/blocklist":
         if event["httpMethod"] == "GET":
-            blocklist_ips = get_ips(file_path=FILE_PATH)
+            queryStringParams = event.get("queryStringParameters")
+            if queryStringParams is None:
+                queryString = "false"
+            else:
+                queryString = queryStringParams.get("include_timestamp", "false")
+            include_time = queryString.lower() == 'true'
+            blocklist_ips = get_ips(include_timestamp=include_time)
             return {
                  'statusCode': 200,
                  'body': blocklist_ips,
@@ -36,7 +42,7 @@ def lambda_handler(event, context):
              }
         
         elif event["httpMethod"] == "POST":
-            request_body = json.loads(event.get('body', '{}'))
+            request_body = json.loads(event.get('body', '[]'))
             result = add_ips(ip_list=request_body)
             return {
                 'statusCode': 200,
@@ -44,7 +50,7 @@ def lambda_handler(event, context):
             }
 
         elif event["httpMethod"] == "DELETE":
-            request_body = json.loads(event.get('body', '{}'))
+            request_body = json.loads(event.get('body', '[]'))
             result = delete_ips(ip_list=request_body)
             return {
                 'statusCode': 200,
