@@ -81,7 +81,7 @@ def save_entries(entries: dict):
             json.dump(entries, f, indent=4)
             
         print(f"INFO::Saving with ({len(entries)}) entries")
-        #s3_resource.Bucket(BUCKET).upload_file(FILE_PATH, KEY)
+        s3_resource.Bucket(BUCKET).upload_file(FILE_PATH, KEY)
         logging.info(f"Entries saved and uploaded to S3: {FILE_PATH}")
     except (IOError, boto3.exceptions.S3UploadFailedError) as e:
         logging.error(f"Error saving entries or uploading to S3: {e}")
