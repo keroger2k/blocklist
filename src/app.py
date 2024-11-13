@@ -9,7 +9,7 @@ from config import BUCKET, FILE_PATH, KEY
 s3_client = boto3.client('s3')
 
 def lambda_handler(event, context):
-
+    
     logging.info(f"Received event: path={event.get('path')}, method={event.get('httpMethod')}")
     
     try:
@@ -46,7 +46,10 @@ def lambda_handler(event, context):
             result = add_ips(ip_list=request_body)
             return {
                 'statusCode': 200,
-                'body': json.dumps({'result': result})
+                'body': json.dumps({'result': result}),
+                "headers": {
+                    "Content-Type": "application/json"
+                 }
             }
 
         elif event["httpMethod"] == "DELETE":
@@ -54,7 +57,10 @@ def lambda_handler(event, context):
             result = delete_ips(ip_list=request_body)
             return {
                 'statusCode': 200,
-                'body': json.dumps({'result': result})
+                'body': json.dumps({'result': result}),
+                "headers": {
+                    "Content-Type": "application/json"
+                 }
             }
 
     # Return a default response for unsupported paths
