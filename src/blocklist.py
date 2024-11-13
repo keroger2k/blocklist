@@ -159,4 +159,4 @@ def write_file_to_s3(entries: dict):
         
         
     # Post file to S3
-    #s3_resource.Bucket(BUCKET).upload_file(FILE_PATH,KEY)
+    s3_resource.Bucket(BUCKET).upload_file(FILE_PATH,KEY)
