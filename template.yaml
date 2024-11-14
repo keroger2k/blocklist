@@ -47,6 +47,7 @@ Resources:
       CodeUri: src/
       Handler: app.lambda_handler
       Runtime: python3.12
+      Timeout: 30  # Timeout in seconds (adjust as needed)
       Architectures:
         - x86_64
       Environment:

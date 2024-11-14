@@ -9,7 +9,7 @@ import boto3
 
 from datetime import datetime
 from dataclasses import dataclass
-from config import ARCHIVE_DIR, CHANGES_DIR, FILE_PATH, MAX_ENTRIES, BUCKET, KEY, FILE_NAME
+from config import ARCHIVE_DIR, CHANGES_DIR, FILE_PATH, MAX_ENTRIES, BUCKET, KEY, FILE_NAME, WHITE_LIST
 
 # Create S3 client and resource
 s3_client = boto3.client('s3')
@@ -63,6 +63,20 @@ s3_resource = boto3.resource('s3')
 #         formatted_response.append(f"{ip} overlaps with: {', '.join(overlapped)}")
     
 #     return "\n".join(formatted_response)
+
+def is_ip_in_white_list(ip):
+    try:
+        ip_obj = ipaddress.ip_network(ip)
+        
+        for network in WHITE_LIST:
+            network_obj = ipaddress.ip_network(network, strict=False)  # Create network object
+            if network_obj.overlaps(ip_obj):
+                return True  # IP is in one of the white list networks
+        return False  # IP is not in any of the white list networks
+    
+    except ValueError as e:
+        print(f"Invalid IP address format: {ip}")
+        return False
 
 def load_entries():
     """Load and return the JSON data from the IP file."""
@@ -125,12 +139,15 @@ def add_ips(ip_list: set):
     print(f"INFO::Adding {len(ip_list)} to list of ({len(entries)}) entries")
 
     for ip in ip_list:
-        normalized_ip = normalize_ip(ip)
-        entries[normalized_ip] = timestamp
+        if not is_ip_in_white_list(ip):
+            normalized_ip = normalize_ip(ip)
+            entries[normalized_ip] = timestamp
+        else:
+            print(f"{ip} found in a whitelist")
+        
 
-    save_entries(entries)
-    trim_entries(entries)
-    return "IPs added successfully"
+    trim_entries(entries) #calls save_entries()
+    return "succcess"
 
 def delete_ips(ip_list):
     """Delete specified IPs from the file."""
@@ -146,4 +163,4 @@ def delete_ips(ip_list):
             logging.info(f"IP {ip} not found in entries.")
 
     save_entries(entries)
-    return "IPs deleted successfully"
+    return "succcess"
