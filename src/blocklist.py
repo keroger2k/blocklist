@@ -143,8 +143,7 @@ def add_ips(ip_list: set):
             normalized_ip = normalize_ip(ip)
             entries[normalized_ip] = timestamp
         else:
-            print(f"{ip} found in a whitelist")
-        
+            print(f"{ip} found in a whitelist")        
 
     trim_entries(entries) #calls save_entries()
     return "succcess"
